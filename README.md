@@ -1,5 +1,7 @@
 # fast-jev-compaction
 
+[日本語版ドキュメント (README.ja.md)](README.ja.md)
+
 Claude Code plugin that replaces the compaction summary with Jev decisions:
 every tool call and result is scored in one fast request, stale ones are
 dropped or truncated, everything kept stays verbatim. Also usable as an npm
@@ -95,6 +97,50 @@ The building blocks (`collectToolCalls`, `fitState`, `batchCalls`,
 
 `apiKey` defaults to `process.env.TYPESAFE_API_KEY`. Never commit the key or
 put it in a source file.
+
+## Local Laya Addon (Zero Cloud API Cost)
+
+This fork includes a built-in addon to use **[Laya](https://github.com/NandhaKishorM/laya)** (an open-source non-autoregressive decision engine) locally instead of calling TypeSafe's Jev cloud API.
+
+### 1. Start Local Laya Server (Python)
+
+```sh
+# Install Laya & dependencies
+pip install laya
+
+# Launch local Laya HTTP API server (compatible with Jev endpoint)
+python3 laya_addon/laya_server.py --port 8000
+```
+
+### 2. Usage in Node.js / TypeScript
+
+```ts
+import { compact, LayaClient, LayaSubprocessAsker } from 'fast-jev-compaction';
+
+// Option A: Connect to HTTP server (sub-35ms response time)
+const layaClient = new LayaClient({ baseUrl: 'http://localhost:8000/v1/systemone' });
+const result = await compact(messages, layaClient);
+
+// Option B: Standalone Python subprocess bridge
+const layaBridge = new LayaSubprocessAsker();
+const result2 = await compact(messages, layaBridge);
+```
+
+### 3. Usage with Claude Code Plugin
+
+Configure the plugin in `.claude-plugin/plugin.json` or your user settings:
+
+```json
+{
+  "provider": "laya",
+  "baseUrl": "http://localhost:8000/v1/systemone"
+}
+```
+
+Or set the environment variable:
+```sh
+export LAYA_BASE_URL=http://localhost:8000/v1/systemone
+```
 
 ## Options
 
