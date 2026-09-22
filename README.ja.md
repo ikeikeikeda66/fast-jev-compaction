@@ -38,7 +38,7 @@
 
 ## Claude Code での使い方
 
-### Step 1: ローカル Laya サーバーの起動 (Python)
+### Step 1: ローカル Laya サーバーの起動
 
 事前に `laya` をインストールし、付属のローカル HTTP API サーバーを起動します。
 
@@ -50,7 +50,11 @@ pip install laya
 python3 laya_addon/laya_server.py --port 8000
 ```
 
-> **TIP**: バックグラウンドで常駐させる場合:
+> **Mac (Hermes / Crow) 環境での注意**:
+> 本 macOS 環境では、Hermes Crow 側の Laya デーモン (`http://127.0.0.1:1934/v1/systemone`) にサービスが統合されています。
+> 既存の `1934` ポート上の Laya サーバーを利用する場合、本サーバーの別途起動は不要です（`baseUrl` に `http://127.0.0.1:1934/v1/systemone` を指定してください）。
+
+> **TIP**: スタンドアロンでバックグラウンド常駐させる場合:
 > ```bash
 > nohup python3 laya_addon/laya_server.py --port 8000 > laya_server.log 2>&1 &
 > ```
