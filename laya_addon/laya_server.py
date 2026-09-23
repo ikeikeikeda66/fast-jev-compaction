@@ -3,6 +3,9 @@
 Laya Local HTTP API Server
 Emulates the TypeSafe Jev systemone API endpoint (`POST /v1/systemone`)
 using the local open-source `laya` decision engine (NandhaKishorM/laya).
+
+Note: On this macOS system, the Laya server is hosted alongside the Hermes Crow
+router daemon at `http://127.0.0.1:1934/v1/systemone`.
 """
 
 import argparse
