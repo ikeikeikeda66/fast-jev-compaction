@@ -1,6 +1,6 @@
 # fast-jev-compaction (日本語版ガイド)
 
-**fast-jev-compaction** は、Claude Code セッションにおける過去のコンテキスト（対話履歴）を要約ではなく、判定モデル（TypeSafe Jev またはローカルオープンソースの **Laya**）を用いて選択的に短縮・削除するコンパクション（文脈圧縮）プラグインおよび Node.js ライブラリです。
+**fast-jev-compaction** は、Claude Code セッションにおける過去のコンテキスト（対話履歴）を要約ではなく、判定モデル（**SemIf**、**Laya**、または TypeSafe Jev）を用いて選択的に短縮・削除するコンパクション（文脈圧縮）プラグインおよび Node.js ライブラリです。
 
 ---
 
@@ -10,11 +10,11 @@
 通常のコンパクション（要約）では、過去のやり取りを言語モデルで要約するため、ファイルパス、正確なエラーログ、特定のコマンド、制約条件などの重要な詳細が失われるリスクがあります。  
 `fast-jev-compaction` は**テキストの書き換えや要約を一切行いません**。過去のツール呼び出し (`tool_use`) と実行結果 (`tool_result`) のうち、**「不要になったものだけを削除・短縮」** し、必要な発言やログは原文のまま残します。
 
-### 2. ローカル Laya アドオン対応 (クラウド API コストゼロ & 完全プライベート)
-本フォークでは、外部クラウド API (`https://api.typesafe.ai/v1/systemone`) の代わりに、ローカルの高速判定エンジン **[Laya](https://github.com/NandhaKishorM/laya)** (ModernBERT/mmBERT ベースのオープンソースモデル) を呼び出すアドオンを搭載しています。
+### 2. ローカル SemIf & Laya アドオン対応 (クラウド API コストゼロ & 完全プライベート)
+本フォークでは、外部クラウド API (`https://api.typesafe.ai/v1/systemone`) の代わりに、ローカルの高速判定エンジン **SemIf**（Apple Silicon GPU MPS/Metal 最適化）または **Laya** を呼び出すアドオンを標準搭載しています。
 - API キー不要、API 従量課金ゼロ
-- 1 判定あたり約 33 ms の超高速レスポンス (GPU 時)
-- ローカル環境内で処理が完結するため機密データの送信なし
+- ローカル環境内で高速判定が完結するため機密データの外部送信なし
+- **SemIf**: Mac 起動時に常駐するデーモン (`http://127.0.0.1:8765`) または CLI サブプロセス経由でシームレスに連携可能
 
 ---
 
@@ -85,8 +85,8 @@ Claude Code 内で `/plugin configure fast-jev-compaction` を実行するか、
 
 | 設定キー | デフォルト値 | 説明 |
 |---|---|---|
-| `provider` | `"laya"` | 判定プロバイダ (`"laya"` = ローカルLaya, `"jev"` = クラウドAPI) |
-| `baseUrl` | `"http://localhost:8000/v1/systemone"` | Laya サーバーのエンドポイント URL |
+| `provider` | `"semif"` (または `"laya"`) | 判定プロバイダ (`"semif"` = ローカルSemIf, `"laya"` = ローカルLaya, `"jev"` = クラウドAPI) |
+| `baseUrl` | `"http://127.0.0.1:8765/v1/systemone"` | 判定サーバーのエンドポイント URL（SemIf: `8765`, Laya: `8000`） |
 | `compactAtPercent` | `60` | コンテキスト領域の使用率(%)がこの値を超えたら自動でコンパクションを発火 |
 | `keepThreshold` | `0.5` | ツール呼び出し・結果を保持する最小確率閾値 |
 | `preserveRecentMessages` | `6` | 保護する最新メッセージの件数 |
@@ -94,6 +94,10 @@ Claude Code 内で `/plugin configure fast-jev-compaction` を実行するか、
 
 #### 環境変数での設定例
 ```bash
+# SemIf を使用する場合
+export SEMIF_BASE_URL=http://127.0.0.1:8765/v1/systemone
+
+# Laya を使用する場合
 export LAYA_BASE_URL=http://localhost:8000/v1/systemone
 ```
 

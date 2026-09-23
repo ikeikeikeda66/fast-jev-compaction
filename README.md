@@ -115,15 +115,25 @@ python3 laya_addon/laya_server.py --port 8000
 ### 2. Usage in Node.js / TypeScript
 
 ```ts
-import { compact, LayaClient, LayaSubprocessAsker } from 'fast-jev-compaction';
+import {
+  compact,
+  LayaClient,
+  LayaSubprocessAsker,
+  SemIfClient,
+  SemIfSubprocessAsker,
+} from 'fast-jev-compaction';
 
-// Option A: Connect to HTTP server (sub-35ms response time)
+// Option A: Connect to Laya HTTP server
 const layaClient = new LayaClient({ baseUrl: 'http://localhost:8000/v1/systemone' });
 const result = await compact(messages, layaClient);
 
-// Option B: Standalone Python subprocess bridge
-const layaBridge = new LayaSubprocessAsker();
-const result2 = await compact(messages, layaBridge);
+// Option B: Connect to SemIf HTTP server (Apple Silicon MPS / float16)
+const semifClient = new SemIfClient({ baseUrl: 'http://127.0.0.1:8765/v1/systemone' });
+const result2 = await compact(messages, semifClient);
+
+// Option C: Standalone Python subprocess bridge (SemIf or Laya)
+const semifBridge = new SemIfSubprocessAsker();
+const result3 = await compact(messages, semifBridge);
 ```
 
 ### 3. Usage with Claude Code Plugin
@@ -132,13 +142,17 @@ Configure the plugin in `.claude-plugin/plugin.json` or your user settings:
 
 ```json
 {
-  "provider": "laya",
-  "baseUrl": "http://localhost:8000/v1/systemone"
+  "provider": "semif",
+  "baseUrl": "http://127.0.0.1:8765/v1/systemone"
 }
 ```
 
 Or set the environment variable:
 ```sh
+# For SemIf:
+export SEMIF_BASE_URL=http://127.0.0.1:8765/v1/systemone
+
+# For Laya:
 export LAYA_BASE_URL=http://localhost:8000/v1/systemone
 ```
 
