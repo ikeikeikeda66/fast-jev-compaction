@@ -6,7 +6,7 @@ export interface JevClientOptions {
   apiKey?: string;
   /** Defaults to `jev-latest`. */
   model?: string;
-  /** Defaults to the System One endpoint. */
+  /** Defaults to `process.env.TYPESAFE_BASE_URL` or the System One endpoint. */
   baseUrl?: string;
   /** Defaults to the global `fetch`. */
   fetch?: typeof fetch;
@@ -22,7 +22,7 @@ export class JevClient implements JevAsker {
   constructor(options: JevClientOptions = {}) {
     this.apiKey = options.apiKey ?? process.env.TYPESAFE_API_KEY ?? '';
     this.model = options.model;
-    this.baseUrl = options.baseUrl;
+    this.baseUrl = options.baseUrl ?? process.env.TYPESAFE_BASE_URL;
     this.fetcher = options.fetch ?? fetch;
   }
 

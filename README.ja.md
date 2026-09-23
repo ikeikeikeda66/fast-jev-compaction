@@ -89,8 +89,11 @@ Claude Code 内で `/plugin configure fast-jev-compaction` を実行するか、
 | `minReductionRatio` | `0.25` | 最低削減率（25%未満の削減量にしかならない場合はスキップ） |
 
 #### 環境変数での設定例
+`LAYA_BASE_URL` に加えて、公式SDKの標準環境変数 `TYPESAFE_BASE_URL` もサポートしています。
 ```bash
 export LAYA_BASE_URL=http://localhost:8000/v1/systemone
+# または公式SDK標準の環境変数を使用可能:
+export TYPESAFE_BASE_URL=http://localhost:8000/v1/systemone
 ```
 
 ---

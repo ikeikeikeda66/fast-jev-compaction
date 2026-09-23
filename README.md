@@ -137,9 +137,11 @@ Configure the plugin in `.claude-plugin/plugin.json` or your user settings:
 }
 ```
 
-Or set the environment variable:
+Or set the environment variable (both `LAYA_BASE_URL` and standard `TYPESAFE_BASE_URL` are supported):
 ```sh
 export LAYA_BASE_URL=http://localhost:8000/v1/systemone
+# or use the standard SDK environment variable:
+export TYPESAFE_BASE_URL=http://localhost:8000/v1/systemone
 ```
 
 ## Options
@@ -148,7 +150,7 @@ export LAYA_BASE_URL=http://localhost:8000/v1/systemone
 | --- | --- | --- |
 | `apiKey` | `TYPESAFE_API_KEY` | TypeSafe API key (`compactMessages`/`JevClient`) |
 | `model` | `jev-latest` | Jev model name |
-| `baseUrl` | `https://api.typesafe.ai/v1/systemone` | System One endpoint |
+| `baseUrl` | `TYPESAFE_BASE_URL` / `LAYA_BASE_URL` / System One endpoint | Endpoint URL (`https://api.typesafe.ai/v1/systemone` or local Laya daemon) |
 | `fetch` | native `fetch` | Injectable fetch implementation for tests |
 | `goal` | last 3 user prompts | Ongoing task description included in the state |
 | `keepThreshold` | `0.5` | Minimum keep probability for a call or result to stay |

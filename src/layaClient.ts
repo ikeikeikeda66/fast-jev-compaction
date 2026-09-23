@@ -4,7 +4,7 @@ import type { JevAsker, JevQuestions, JevResponse, JevState } from './types.js';
 export const DEFAULT_LAYA_URL = 'http://localhost:8000/v1/systemone';
 
 export interface LayaClientOptions {
-  /** Defaults to `process.env.LAYA_BASE_URL` or `http://localhost:8000/v1/systemone`. */
+  /** Defaults to `process.env.LAYA_BASE_URL`, `process.env.TYPESAFE_BASE_URL`, or `http://localhost:8000/v1/systemone`. */
   baseUrl?: string;
   /** Model override name (e.g. `english`, `multilingual`, `typed-decisions`). */
   model?: string;
@@ -24,7 +24,11 @@ export class LayaClient implements JevAsker {
   private readonly fetcher: typeof fetch;
 
   constructor(options: LayaClientOptions = {}) {
-    this.baseUrl = options.baseUrl ?? process.env.LAYA_BASE_URL ?? DEFAULT_LAYA_URL;
+    this.baseUrl =
+      options.baseUrl ??
+      process.env.LAYA_BASE_URL ??
+      process.env.TYPESAFE_BASE_URL ??
+      DEFAULT_LAYA_URL;
     this.model = options.model;
     this.apiKey = options.apiKey ?? process.env.LAYA_API_KEY ?? 'laya-local';
     this.fetcher = options.fetch ?? fetch;

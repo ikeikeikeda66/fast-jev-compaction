@@ -74,7 +74,12 @@ export function resolveHookConfig(options: PluginOptions): HookConfig {
   }
   const providerVal = optionString(options, 'provider');
   const provider = (providerVal === 'laya' || providerVal === 'jev') ? providerVal : undefined;
-  const baseUrl = optionString(options, 'baseUrl') ?? process.env.LAYA_BASE_URL ?? (provider === 'laya' ? 'http://localhost:8000/v1/systemone' : undefined);
+  const globalEnv = (globalThis as unknown as { process?: { env?: Record<string, string | undefined> } }).process?.env;
+  const baseUrl =
+    optionString(options, 'baseUrl') ??
+    globalEnv?.['LAYA_BASE_URL'] ??
+    globalEnv?.['TYPESAFE_BASE_URL'] ??
+    (provider === 'laya' ? 'http://localhost:8000/v1/systemone' : undefined);
 
   const config: HookConfig = {
     ...numbers,
@@ -253,6 +258,27 @@ async function getApiKey(
   return undefined;
 }
 
+async function getBaseUrl(
+  $: {
+    env: { get: (name: string) => Promise<string | undefined> };
+    settings: { read: () => Promise<Readonly<Record<string, unknown>>> };
+  },
+  config: HookConfig,
+): Promise<string | undefined> {
+  if (config.baseUrl) return config.baseUrl;
+  const fromEnv = (await $.env.get('LAYA_BASE_URL')) || (await $.env.get('TYPESAFE_BASE_URL'));
+  if (fromEnv) return fromEnv;
+  const settings = await $.settings.read();
+  const env = settings['env'];
+  if (env && typeof env === 'object') {
+    const laya = (env as Record<string, unknown>)['LAYA_BASE_URL'];
+    if (typeof laya === 'string' && laya) return laya;
+    const typesafe = (env as Record<string, unknown>)['TYPESAFE_BASE_URL'];
+    if (typeof typesafe === 'string' && typesafe) return typesafe;
+  }
+  return config.provider === 'laya' ? 'http://localhost:8000/v1/systemone' : undefined;
+}
+
 function notify(
   $: {
     ui: {
@@ -272,7 +298,11 @@ export const register: Register = (on: On, options: PluginOptions) => {
 
   on('session.compact', async ($, event, next) => {
     try {
-      const config = { ...configured, apiKey: await getApiKey($, configured) };
+      const config = {
+        ...configured,
+        apiKey: await getApiKey($, configured),
+        baseUrl: await getBaseUrl($, configured),
+      };
       const { result, messages } = await compactSession(event.messages, config, async (url, init) => {
         const response = await $.http.fetch(url, init);
         return { status: response.status, ok: response.ok, text: response.text };
